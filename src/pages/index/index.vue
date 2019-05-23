@@ -1,126 +1,126 @@
 <template>
-  <div @click="clickHandle">
-
-    <div class="userinfo" @click="bindViewTap">
-      <img class="userinfo-avatar" v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" background-size="cover" />
-      <img class="userinfo-avatar" src="/static/images/user.png" background-size="cover" />
-
-      <div class="userinfo-nickname">
-        <card :text="userInfo.nickName"></card>
-      </div>
+  <div>
+    <!-- 焦点图 -->
+    <swiper class="banner" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)" indicator-active-color="#fff">
+      <swiper-item v-for="list in banner" :key="goods_id">
+        <image :src="list.image_src"></image>
+      </swiper-item>
+    </swiper>
+    <!-- 导航条 -->
+    <div class="navs">
+      <image :src="item.image_src" v-for="(item,i) in cart" :key="i"></image>
     </div>
-
-    <div class="usermotto">
-      <div class="user-motto">
-        <card :text="motto"></card>
+    <!-- 楼层 -->
+    <div class="floors" v-for="(item,i) in floor" :key="i">
+      <div class="floor">
+        <div class="title">
+          <image :src="item.floor_title.image_src"></image>
+        </div>
+        <div class="items">
+          <image v-for="(lastitem,key) in item.product_list" :key="key" :src="lastitem.image_src"></image>
+        </div>
       </div>
-    </div>
-
-    <form class="form-container">
-      <input type="text" class="form-control" :value="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model.lazy="motto" placeholder="v-model.lazy" />
-    </form>
-
-    <a href="/pages/counter/main" class="counter">去往Vuex示例页面</a>
-
-    <div class="all">
-        <div class="left">
-        </div>
-        <div class="right">
-        </div>
     </div>
   </div>
 </template>
 
 <script>
-import card from '@/components/card'
+import request from '../../utils/request.js'
 
 export default {
   data () {
     return {
-      motto: 'Hello miniprograme',
-      userInfo: {
-        nickName: 'mpvue',
-        avatarUrl: 'http://mpvue.com/assets/logo.png'
-      }
+      banner: [],
+      cart: [],
+      floor: []
     }
   },
-
-  components: {
-    card
+  mounted () {
+    this.getBanner()
+    this.getCart()
+    this.getFloor()
   },
-
   methods: {
-    bindViewTap () {
-      const url = '../logs/main'
-      if (mpvuePlatform === 'wx') {
-        mpvue.switchTab({ url })
-      } else {
-        mpvue.navigateTo({ url })
-      }
+    // 轮播图
+    async getBanner () {
+      const {message} = await request({
+        url: 'api/public/v1/home/swiperdata'
+      })
+      this.banner = message
     },
-    clickHandle (ev) {
-      console.log('clickHandle:', ev)
-      // throw {message: 'custom test'}
+    // 导航菜单
+    async getCart () {
+      const {message} = await request({
+        url: 'api/public/v1/home/catitems'
+      })
+      this.cart = message
+    },
+    // 楼层
+    async getFloor () {
+      const {message} = await request({
+        url: 'api/public/v1/home/floordata'
+      })
+      this.floor = message
     }
-  },
-
-  created () {
-    // let app = getApp()
   }
 }
 </script>
 
-<style scoped>
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+<style scoped lang="less">
 
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
-}
+  .banner {
+    width: 100%;
+    height: 340rpx;
 
-.userinfo-nickname {
-  color: #aaa;
-}
+    image {
+      width: 100%;
+      height: 340rpx;
+    }
+  }
 
-.usermotto {
-  margin-top: 150px;
-}
+  .navs {
+    display: flex;
+    justify-content: space-between;
+    padding: 30rpx 44rpx;
 
-.form-control {
-  display: block;
-  padding: 0 12px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-.all{
-  width:7.5rem;
-  height:1rem;
-  background-color:blue;
-}
-.all:after{
-  display:block;
-  content:'';
-  clear:both;
-}
-.left{
-  float:left;
-  width:3rem;
-  height:1rem;
-  background-color:red;
-}
+    image {
+      width: 128rpx;
+      height: 140rpx;
+    }
+  }
 
-.right{
-  float:left;
-  width:4.5rem;
-  height:1rem;
-  background-color:green;
-}
+  .floors {
+
+    .title {
+      width: 750rpx;
+      height: 60rpx;
+      padding-top: 20rpx;
+      background-color: #f4f4f4;
+      image{
+         height:100%
+      }
+    }
+
+    .items {
+      padding: 20rpx 16rpx;
+      overflow: hidden;
+
+      image {
+        width: 232rpx;
+        height: 188rpx;
+        margin-right: 10rpx;
+        margin-bottom: 10rpx;
+        float: left;
+      }
+
+      image:nth-child(2n+1) {
+        margin-right: 0;
+      }
+
+      image:first-child {
+        height: 386rpx;
+        margin-right: 10rpx;
+      }
+    }
+  }
 </style>
